@@ -202,30 +202,24 @@ Mennyt 1,95,“Maalauksista tutkijat ovat tehneet tulkintoja kreikkalaisten työ
 `
 
 let bookData = d3.csvParse(dataString)
-//console.log(bookData)
+let canvasHeight = 500
+let canvasWidth = 1000
 
 // Get out the stuff that interests us in the data
 let books = bookData.map(d => d['Oppikirja'])
 distinctBooks = [...new Set(books)]
-//console.log(distinctBooks)
 
 let themes = bookData.map(d => d['Teema'])
 distinctThemes = [...new Set(themes)]
-//console.log(distinctThemes)
 
 let subThemes = bookData.map(d => d['Alateema'])
 distinctSubThemes = [...new Set(subThemes)]
-//console.log(distinctSubThemes)
 
 function themeOccurancesInSample(sample, column, value) {
 	let columnValues = sample.map(d => d[column])
 	let onlyWantedValues = columnValues.filter(d => d == value)
 	return onlyWantedValues.length
 }
-
-//console.log("Occurances of Teema: Tiedon konstruointi", themeOccurancesInSample(bookData, "Teema", "Tiedon konstruointi"))
-//console.log("Occurances of Alateema: Oma tulkinta", themeOccurancesInSample(bookData, "Alateema", "Oma tulkinta"))
-
 
 let occurancesOfThemePerBook = []
 distinctBooks.forEach(b => {
@@ -242,13 +236,17 @@ distinctBooks.forEach(b => {
 	})
 })
 
-console.log(occurancesOfThemePerBook)
+console.log("Occurances of theme per book", occurancesOfThemePerBook)
 
 let canvas = d3.select("#canvas")
 canvas.style("border", "3px solid black")
 canvas.style("background-color", "hotpink")
 
-let bars = canvas.selectAll("div")
+let svg = canvas.append("svg").attr("width", canvasWidth).attr("height", canvasHeight)
+
+let bars = svg.selectAll("div")
+	.data(occurancesOfThemePerBook)
+	.enter()
 
 function getColorOfTheme(theme) {
 	if (theme == 'Moniäänisyys') { return "orange"}
@@ -256,18 +254,36 @@ function getColorOfTheme(theme) {
 	if (theme == 'Voimaannuttaminen') { return "limegreen"}
 }
 
-bars.data(occurancesOfThemePerBook)
-	.enter().append("div")
-		.style("width", "40px")
-		.style("margin-left", (d, i) => {
-			return i*50 + "px"
-		})
-		.style("border", "3px solid black")
-		.style("background-color", d => {
-			return getColorOfTheme(d.Theme)
-		})
-		.style("height", d => {
-			return d.OccurancesCount*2 + "px"
-		})
+bars.append("rect")
+	.style("stroke", "black")
+	.style("stroke-width", 3)
+	.attr("x", 0)
+	.attr("y", (d, i) => {
+		let padding = Math.floor(i / 3) * 20
+		return i*30 + padding + 10
+	})
+	.attr("height", 20)
+	.attr("fill", d => getColorOfTheme(d.Theme))
+	.attr("width", 0)
+	.transition()
+	.duration(750)
+	.attr("width", (d, i) => d.OccurancesCount*20)
+	.attr("class", "bar")
+
+bars.append("text")
+	.style("font-family", "Comic Sans MS")
+	.text(d => "n:" + d.OccurancesCount)
+	.attr("y", (d, i) => {
+		let padding = Math.floor(i / 3) * 20
+		return i*30 + padding + 25
+	})
+	.attr("x", 0)
+	.transition()
+	.duration(750)
+	.attr("x", (d, i) => d.OccurancesCount*20 + 20)
+
+bars.selectAll("rect").append("title")
+	.text(d => d.Book + " - " + d.Theme)
+
 
 
