@@ -1,0 +1,22 @@
+{
+  "name": "let-me-try-d3",
+  "version": "1.0.0",
+  "description": "Some dabbles in D3 + HTML + SVG for a talk in Turku <3 Frontend in 2019.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/magdapoppins/let-me-do-d3.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/magdapoppins/let-me-do-d3/issues"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "homepage": "https://github.com/magdapoppins/let-me-do-d3#readme"
+}
