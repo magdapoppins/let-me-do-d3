@@ -248,12 +248,14 @@ function getColorOfTheme(theme) {
 	if (theme == 'Voimaannuttaminen') { return "limegreen"}
 }
 
-console.log(distinctBooks)
+let themeNodes = svg.selectAll("g").data(distinctBooks)
+	.enter().append("g")
 
-svg.selectAll("circle").data(distinctBooks)
-	.enter().append("circle")
+themeNodes.append("circle")
 		.attr("cx", (d, i) => i*(1000/5)+70)
 		.attr("cy", 100)
+		.transition()
+		.delay(2)
 		.attr("r", (d, i) => {
 			let a = occurancesOfThemePerBook.filter(obd => {
 				return obd.Book == d
@@ -263,14 +265,44 @@ svg.selectAll("circle").data(distinctBooks)
 			return a*1.5
 		})
 		.attr("fill", (d) => {
-			let a = occurancesOfThemePerBook.filter(obd => {
-				return obd.Book == d
+			let occurancesInCurrentBook = occurancesOfThemePerBook.filter(bookData => {
+				return bookData.Book == d
 			})
-			let r = 
-			console.log(a)
+
+			let totalInstancesOfThemes = occurancesInCurrentBook.map(occurance => occurance.OccurancesCount)
+			totalInstancesOfThemes = totalInstancesOfThemes.reduce((a, b) => a + b, 0)
+
+			// Calculate % of each theme and then use it to blend the RGB by making that % of each color to r, g and b separately
+			getPercentageOfThemeInAllInstances = (themeName, allInstanceCount) => {
+				let themeData = occurancesInCurrentBook.filter(data => data.Theme == themeName)
+				return (themeData[0].OccurancesCount) / allInstanceCount
+			}
+
+			// In this specific book, what % is each theme of all themes?
+			let percentageOfMP = getPercentageOfThemeInAllInstances("Moniäänisyys", totalInstancesOfThemes)
+			let percentageOfTK = getPercentageOfThemeInAllInstances("Tiedon konstruointi", totalInstancesOfThemes)
+			let percentageOfVO = getPercentageOfThemeInAllInstances("Voimaannuttaminen", totalInstancesOfThemes)
+
+			// console.log("Percentage of TK", percentageOfTK)
+			// console.log("Percentage of MP", percentageOfMP)
+			// console.log("Percentage of VO", percentageOfVO)
+
+			// Tiedon konstr		 Moniääni	         Voimaann
+			// rgb(255, 220, 15)     rgb(255, 73, 255)   rgb(23, 248, 27)
+			let rValue = percentageOfVO * 23 + percentageOfTK * 255 + percentageOfMP * 255
+			let gValue = percentageOfVO * 248 + percentageOfTK * 220 + percentageOfMP * 73
+			let bValue = percentageOfVO * 27 + percentageOfTK * 15 + percentageOfMP * 255
+
+			return "rgb(" + rValue + "," + gValue + "," + bValue + ")"
+
 		})
 		.style("stroke", "black")            
 		.style("stroke-width", 3)
 
-// Tiedon konstr	Moniääni	Voimaann
-// 118, 66, 72 & 255, 173, 198 & 223, 226, 207
+themeNodes.append("svg:title")
+	.text(d => "Book:" + d)
+
+themeNodes.append("text")
+	.text(d => d)
+	.attr("x", (d, i) => i*(1000/5)+70)
+	.attr("y", 300)
