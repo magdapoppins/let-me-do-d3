@@ -244,7 +244,7 @@ canvas.style("background-color", "hotpink")
 
 let svg = canvas.append("svg").attr("width", canvasWidth).attr("height", canvasHeight)
 
-let bars = svg.selectAll("div")
+let bars = svg.selectAll("rect")
 	.data(occurancesOfThemePerBook)
 	.enter()
 

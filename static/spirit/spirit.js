@@ -254,6 +254,8 @@ let themeNodes = svg.selectAll("g").data(distinctBooks)
 themeNodes.append("circle")
 		.attr("cx", (d, i) => i*(1000/5)+70)
 		.attr("cy", 100)
+		.style("stroke", "black")            
+		.style("stroke-width", 3)
 		.transition()
 		.delay(2)
 		.attr("r", (d, i) => {
@@ -296,13 +298,11 @@ themeNodes.append("circle")
 			return "rgb(" + rValue + "," + gValue + "," + bValue + ")"
 
 		})
-		.style("stroke", "black")            
-		.style("stroke-width", 3)
 
 themeNodes.append("svg:title")
 	.text(d => "Book:" + d)
 
-themeNodes.append("text")
-	.text(d => d)
-	.attr("x", (d, i) => i*(1000/5)+70)
-	.attr("y", 300)
+// themeNodes.append("text")
+// 	.text(d => d)
+// 	.attr("x", (d, i) => i*(1000/5)+70)
+// 	.attr("y", 300)

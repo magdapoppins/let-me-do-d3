@@ -15,6 +15,9 @@
   "bugs": {
     "url": "https://github.com/magdapoppins/let-me-do-d3/issues"
   },
+  "engines": {
+    "node": "11.3.0"
+  },
   "dependencies": {
     "express": "^4.17.1"
   },
