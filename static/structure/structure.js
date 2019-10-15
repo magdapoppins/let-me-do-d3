@@ -203,94 +203,85 @@ Mennyt 1,95,“Maalauksista tutkijat ovat tehneet tulkintoja kreikkalaisten työ
 
 let bookData = d3.csvParse(dataString)
 
-let themes = bookData.map(d => d['Teema'])
-distinctThemes = [...new Set(themes)]
+var width = 900, height = 800
 
-let themeStructure = []
-distinctThemes.forEach(theme => {
-	bookData.forEach(book => {
-		let themeInfo = {
-			"Theme": book['Alateema'],
-			"Level": 2
-		}
-		if (book['Teema'] == theme) {
-			themeStructure.push(themeInfo)
-		}
-	})
-	themeStructure.push({
-		"Theme": theme,
-		"Level": 1
-	})
-})
-themeStructure.push({
-	"Theme": "Monikulttuurisuus historian oppikirjoissa",
-	"Level": 0
-})
-themeStructure = themeStructure.filter((data, index) => {
-	return index === themeStructure.findIndex(obj => {
-	    return JSON.stringify(obj) === JSON.stringify(data);
-	});
-})
+var nodes = [
+ {name: 'Monikulttuuriset sisällöt'},
+ {name: 'Tiedon konstruointi'},
+ {name: 'Moniäänisyys'},
+ {name: 'Voimaannuttaminen'},
+ {name: 'Oman historian tutkiminen'},
+ {name: 'Erilaiset tulkinnat'},
+ {name: 'Alkuperäiskansojen historia'},
+ {name: 'Mahti'},
+]
 
+var links = [
+  {source: 0, target: 1},
+  {source: 0, target: 2},
+  {source: 0, target: 3},
+  {source: 1, target: 5},
+  {source: 1, target: 4},
+  {source: 3, target: 7},
+  {source: 3, target: 6},
+]
 
+var simulation = d3.forceSimulation(nodes)
+  .force('charge', d3.forceManyBody().strength(-800))
+  .force('center', d3.forceCenter(width / 2, height / 2))
+  .force('link', d3.forceLink().links(links))
+  .on('tick', ticked);
 
+function updateLinks() {
+  var u = d3.select('.links')
+    .selectAll('line')
+    .data(links)
 
-console.log(themeStructure)
+  u.enter()
+    .append('line')
+	.merge(u)
+	.attr('stroke', 'hotpink')
+    .attr('x1', function(d) {
+      return d.source.x
+    })
+    .attr('y1', function(d) {
+      return d.source.y
+    })
+    .attr('x2', function(d) {
+      return d.target.x
+    })
+    .attr('y2', function(d) {
+      return d.target.y
+    })
 
-let canvas = d3.select("#canvas")
-canvas.style("border", "3px solid black")
-canvas.style("background-color", "hotpink")
-canvas.style("height", "90vh")
-
-let svg = canvas.append("svg").attr("width", 1200).attr("height", 600)
-
-let themeNodes = svg.selectAll("g").data(themeStructure)
-	.enter().append("g")
-
-getNodePositionX = (data, levelsX, canvasWidth) => {
-	let padding = 20
-	//console.log("Node position X", (canvasWidth - padding) / levelsX * data['Level'] + padding)
-	return (canvasWidth - padding) / levelsX * data['Level'] + padding
+  u.exit().remove()
 }
 
-getNodePositionY = (index, levelsY, canvasHeight) => {
-	let padding = 20
-	console.log("Node position Y", (canvasHeight - padding) / levelsY * index + padding)
-	return (canvasHeight - padding) / themeStructure.length * index + padding
+function updateNodes() {
+  u = d3.select('.nodes')
+    .selectAll('text')
+    .data(nodes)
+
+  u.enter()
+    .append('text')
+    .text(function(d) {
+      return d.name
+    })
+    .merge(u)
+    .attr('x', function(d) {
+      return d.x
+    })
+    .attr('y', function(d) {
+      return d.y
+    })
+    .attr('dy', function(d) {
+      return 5
+    })
+
+  u.exit().remove()
 }
 
-getLevelsY = (data, levelX) => {
-	let onLevelY = data.filter(d => d['Level'] == levelX)
-	return onLevelY.length
+function ticked() {
+  updateLinks()
+  updateNodes()
 }
-
-themeNodes.append("circle")
-	.attr("cx", (d, i) => getNodePositionX(d, 3, 900))
-	.attr("cy", (d, i) => getNodePositionY(i, 11, 500)) // getLevelsY(themeStructure, d['Level'])
-	.attr("r", 5)
-	.attr("fill", "white")
-	.style("stroke", "black")
-	.style("stroke-width", 2)
-
-themeNodes.append("text")
-	.text(d => d.Theme)
-	.attr("x", (d, i) => getNodePositionX(d, 3, 900) + 10)
-	.attr("y", (d, i) => getNodePositionY(i, 11, 500) + 10)
-
-let middleLevel = themeStructure.filter(d => d['Level'] == 2)
-let linksBetween = middleLevel.map(n => {
-	return [
-		{
-			"x1": 
-		}
-	]
-})
-
-svg.selectAll("line").data(themeStructure)
-	.enter().append("line")
-		.attr("x1", 20)
-		.attr("y1", 300)
-		.attr("x2", 200) 
-		.attr("y2", 200)
-		.style("stroke", "black")
-		.style("stroke-width", 2);
