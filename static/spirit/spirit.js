@@ -1,18 +1,9 @@
 d3.csv("/books.csv").then(bookData => {
-  // DISTINCT BOOKS
-  let books = bookData.map(d => d["Oppikirja"]);
-  books = [
-    { name: "Ritari 5" },
-    { name: "Mennyt 1" },
-    { name: "Forum 5" },
-    { name: "Tutki ja tulkitse 1" }
-  ];
-
-  distinctBooks = [...new Set(books)];
-
-  // DISTINCT THEMES
-  let themes = bookData.map(d => d["Teema"]);
-  distinctThemes = [...new Set(themes)];
+  const bookNames = bookData.map(d => d["Oppikirja"]);
+  const distinctBooks = [...new Set(bookNames)].map(bookName => ({
+    name: bookName
+  }));
+  const distinctThemes = [...new Set(bookData.map(d => d["Teema"]))];
 
   // OCCURANCES OF VALUES (themes) IN COLUMN (theme or subtheme)
   function themeOccurancesInSample(sample, column, value) {

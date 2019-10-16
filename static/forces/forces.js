@@ -17,14 +17,14 @@ const getThemeOccurancesByBook = (bookData, uniqueBooks, uniqueThemes) =>
     return [...acc, ...occurancesByBook];
   }, []);
 
-xCenter = {
+const xCenter = {
   "Forum 5": 100,
   "Ritari 5": 300,
   "Tutki ja tulkitse 1": 500,
   "Mennyt 1": 700
 };
 
-yCenterTheme = {
+const yCenterTheme = {
   "Tiedon konstruointi": 50,
   Voimaannuttaminen: 80,
   Moniäänisyys: 110
