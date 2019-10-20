@@ -1,184 +1,162 @@
-d3.csv("/books.csv").then(bookData => {
-  const bookNames = bookData.map(d => d["Oppikirja"]);
-  const distinctBooks = [...new Set(bookNames)].map(bookName => ({
-    name: bookName
-  }));
-  const distinctThemes = [...new Set(bookData.map(d => d["Teema"]))];
+const height = 600,
+  width = 900;
 
-  // OCCURANCES OF VALUES (themes) IN COLUMN (theme or subtheme)
-  function themeOccurancesInSample(sample, column, value) {
-    let columnValues = sample.map(d => d[column]);
-    let onlyWantedValues = columnValues.filter(d => d == value);
-    return onlyWantedValues.length;
-  }
+const themeOccurancesInSample = (sample, column, value) =>
+  sample.map(data => data[column]).filter(column => column === value).length;
 
-  let occurancesOfThemePerBook = [];
-  distinctBooks.forEach(distinctBook => {
-    distinctThemes.forEach(distinctTheme => {
-      let dataOfThisBook = bookData.filter(bookDataRow => {
-        return bookDataRow["Oppikirja"] == distinctBook.name;
-      });
+const getThemeOccurancesByBook = (bookData, uniqueBooks, uniqueThemes) =>
+  uniqueBooks.reduce((acc, book) => {
+    const dataByBook = bookData.filter(bd => bd["Oppikirja"] === book);
 
-      occurancesOfThemePerBook.push({
-        Book: distinctBook.name,
-        Theme: distinctTheme,
-        OccurancesCount: themeOccurancesInSample(
-          dataOfThisBook,
-          "Teema",
-          distinctTheme
-        )
-      });
-    });
-  });
+    const occurancesByBook = uniqueThemes.map(theme => ({
+      Book: book,
+      Theme: theme,
+      OccurancesCount: themeOccurancesInSample(dataByBook, "Teema", theme)
+    }));
 
+    return [...acc, ...occurancesByBook];
+  }, []);
+
+const colorMP = [74, 74, 247];
+const colorVO = [0, 0, 0];
+const colorTK = [255, 255, 255];
+
+const themeColors = {
+  Moniäänisyys: `rgb(${colorMP[0]}, ${colorMP[1]}, ${colorMP[2]})`,
+  Voimaannuttaminen: `rgb(${colorVO[0]}, ${colorVO[1]}, ${colorVO[2]})`,
+  "Tiedon konstruointi": `rgb(${colorTK[0]}, ${colorTK[1]}, ${colorTK[2]})`
+};
+
+const getPercentageOfThemeInAllInstances = (themeName, allInstanceCount, occurancesInCurrentBook) => {
+  const themeData = occurancesInCurrentBook.filter(
+    data => data.Theme == themeName
+  );
+  return themeData[0].OccurancesCount / allInstanceCount;
+};
+
+const getColorForBook = (bookName, occurancesOfThemePerBook) => {
+  const occurancesInCurrentBook = occurancesOfThemePerBook.filter(
+    bookData => bookData.Book == bookName
+  );
+
+  let totalInstancesOfThemes = occurancesInCurrentBook.map(
+    occurance => occurance.OccurancesCount
+  );
+
+  totalInstancesOfThemes = totalInstancesOfThemes.reduce(
+    (acc, instances) => acc + instances,
+    0
+  );
+
+  // In this specific book, what % is each theme of all themes?
+  const percentageOfMP = getPercentageOfThemeInAllInstances(
+    "Moniäänisyys",
+    totalInstancesOfThemes,
+    occurancesInCurrentBook
+  );
+  const percentageOfTK = getPercentageOfThemeInAllInstances(
+    "Tiedon konstruointi",
+    totalInstancesOfThemes,
+    occurancesInCurrentBook
+  );
+  const percentageOfVO = getPercentageOfThemeInAllInstances(
+    "Voimaannuttaminen",
+    totalInstancesOfThemes,
+    occurancesInCurrentBook
+  );
+
+  const rValue =
+    percentageOfVO * colorVO[0] +
+    percentageOfTK * colorTK[0] +
+    percentageOfMP * colorMP[0];
+  const gValue =
+    percentageOfVO * colorVO[1] +
+    percentageOfTK * colorTK[1] +
+    percentageOfMP * colorMP[1];
+  const bValue =
+    percentageOfVO * colorVO[2] +
+    percentageOfTK * colorTK[2] +
+    percentageOfMP * colorMP[2];
+
+  return "rgb(" + rValue + "," + gValue + "," + bValue + ")";
+};
+
+const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
   let svg = d3.select("svg");
-  let height = 600;
-  let width = 900;
 
-  var simulation = d3
-    .forceSimulation(distinctBooks)
+  const books = svg.selectAll("circle").data(uniqueBooks);
+
+  books
+    .enter()
+    .append("circle")
+    .merge(books)
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .style("stroke", "black")
+    .style("stroke-width", 3)
+    .attr("fill", data => getColorForBook(data.name, occurancesOfThemePerBook))
+    .transition()
+    .delay(2)
+    .attr("r", 80);
+
+  books.exit().remove();
+
+  // TODO FIX THIS
+  let bookNames = svg.selectAll("text").data(uniqueBooks);
+
+  bookNames
+    .enter()
+    .append("text")
+    .merge(bookNames)
+    .attr("x", d => d.x - (5 + d.name.length * 3))
+    .attr("y", d => d.y)
+    .text(d => d.name);
+
+  let themesAndColors = d3
+    .select("svg")
+    .selectAll("rect")
+    .data(uniqueThemes);
+
+  themesAndColors
+    .enter()
+    .append("rect")
+    .attr("x", 20)
+    .attr("y", (data, index) => height - (index + 1) * 30)
+    .attr("width", 15)
+    .attr("height", 15)
+    .attr("stroke", "black")
+    .attr("stroke-width", 2)
+    .attr("fill", data => themeColors[data]);
+
+  themesAndColors
+    .enter()
+    .append("text")
+    .attr("x", 40)
+    .attr("y", (data, index) => height - (index + 1) * 30 + 15)
+    .text(data => "Theme: " + data);
+
+  themesAndColors.exit().remove();
+};
+
+d3.csv("/books.csv").then(bookData => {
+  const uniqueBooks = [...new Set(bookData.map(data => data["Oppikirja"]))].map(
+    bookName => ({ name: bookName })
+  );
+  const uniqueThemes = [...new Set(bookData.map(data => data["Teema"]))];
+
+  const occurancesOfThemePerBook = getThemeOccurancesByBook(
+    bookData,
+    uniqueBooks.map(book => book.name),
+    uniqueThemes
+  );
+
+  d3.forceSimulation(uniqueBooks)
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force(
-      "collision",
-      d3.forceCollide().radius(d => {
-        return getThemeOccuranceCountForBook(d.name);
-      })
-    )
-    .force(
-      "x",
-      d3.forceX().x(d => {
-        return height / 2;
-      })
-    )
-    .force(
-      "y",
-      d3.forceY().y(d => {
-        return width / 2;
-      })
-    )
-    .on("tick", ticked);
-
-  function getColorOfTheme(theme) {
-    if (theme == "Moniäänisyys") {
-      return "rgb(255, 73, 255)";
-    }
-    if (theme == "Tiedon konstruointi") {
-      return "rgb(255, 220, 15)";
-    }
-    if (theme == "Voimaannuttaminen") {
-      return "rgb(23, 248, 27)";
-    }
-  }
-
-  function getThemeOccuranceCountForBook(bookName) {
-    let a = occurancesOfThemePerBook.filter(obd => {
-      return obd.Book == bookName;
-    });
-    a = a.map(asd => asd.OccurancesCount);
-    a = a.reduce((w, e) => w + e, 0);
-    return a * 1.5;
-  }
-
-  function getColorForBook(bookName) {
-    let occurancesInCurrentBook = occurancesOfThemePerBook.filter(bookData => {
-      return bookData.Book == bookName;
-    });
-
-    let totalInstancesOfThemes = occurancesInCurrentBook.map(
-      occurance => occurance.OccurancesCount
+    .force("collision", d3.forceCollide().radius(80))
+    .force("x", d3.forceX().x(height / 2))
+    .force("y", d3.forceY().y(width / 2))
+    .on("tick", () =>
+      ticked(uniqueBooks, uniqueThemes, occurancesOfThemePerBook)
     );
-    totalInstancesOfThemes = totalInstancesOfThemes.reduce((a, b) => a + b, 0);
-
-    // Calculate % of each theme and then use it to blend the RGB by making that % of each color to r, g and b separately
-    getPercentageOfThemeInAllInstances = (themeName, allInstanceCount) => {
-      let themeData = occurancesInCurrentBook.filter(
-        data => data.Theme == themeName
-      );
-      return themeData[0].OccurancesCount / allInstanceCount;
-    };
-
-    // In this specific book, what % is each theme of all themes?
-    let percentageOfMP = getPercentageOfThemeInAllInstances(
-      "Moniäänisyys",
-      totalInstancesOfThemes
-    );
-    let percentageOfTK = getPercentageOfThemeInAllInstances(
-      "Tiedon konstruointi",
-      totalInstancesOfThemes
-    );
-    let percentageOfVO = getPercentageOfThemeInAllInstances(
-      "Voimaannuttaminen",
-      totalInstancesOfThemes
-    );
-
-    // Tiedon konstr		 Moniääni	         Voimaann
-    // rgb(255, 220, 15)     rgb(255, 73, 255)   rgb(23, 248, 27)
-    let rValue =
-      percentageOfVO * 23 + percentageOfTK * 255 + percentageOfMP * 255;
-    let gValue =
-      percentageOfVO * 248 + percentageOfTK * 220 + percentageOfMP * 73;
-    let bValue =
-      percentageOfVO * 27 + percentageOfTK * 15 + percentageOfMP * 255;
-
-    return "rgb(" + rValue + "," + gValue + "," + bValue + ")";
-  }
-
-  function ticked() {
-    let books = svg.selectAll("circle").data(distinctBooks);
-
-    books
-      .enter()
-      .append("circle")
-      .merge(books)
-      .attr("cx", function(d) {
-        return d.x;
-      })
-      .attr("cy", function(d) {
-        return d.y;
-      })
-      .style("stroke", "black")
-      .style("stroke-width", 3)
-      .attr("fill", d => getColorForBook(d.name))
-      .transition()
-      .delay(2)
-      .attr("r", d => getThemeOccuranceCountForBook(d.name));
-
-    // TODO FIX THIS
-    // let bookNames = svg.selectAll("text")
-    // 	.data(distinctBooks)
-
-    // bookNames.enter().append("text")
-    // 	.merge(bookNames)
-    // 	.attr("x", (d) => d.x - (d.name.length*3))
-    // 	.attr("y", (d) => d.y)
-    // 	.text(d => d.name)
-
-    let themesAndColors = d3
-      .select("svg")
-      .selectAll("rect")
-      .data(distinctThemes);
-
-    themesAndColors
-      .enter()
-      .append("rect")
-      .attr("x", 20)
-      .attr("y", (d, i) => height - (i + 1) * 30)
-      .attr("width", 15)
-      .attr("height", 15)
-      .attr("stroke", "black")
-      .attr("stroke-width", 2)
-      .attr("fill", d => getColorOfTheme(d));
-
-    themesAndColors
-      .enter()
-      .append("text")
-      .attr("x", 40)
-      .attr("y", (d, i) => height - (i + 1) * 30 + 15)
-      .text(d => "Theme: " + d);
-
-    themesAndColors.exit().remove();
-    books.exit().remove();
-    //bookNames.exit().remove()
-  }
 });
