@@ -27,6 +27,13 @@ const themeColors = {
   "Tiedon konstruointi": `rgb(${colorTK[0]}, ${colorTK[1]}, ${colorTK[2]})`
 };
 
+const getPercentageOfThemeInAllInstances = (themeName, allInstanceCount, occurancesInCurrentBook) => {
+  const themeData = occurancesInCurrentBook.filter(
+    data => data.Theme == themeName
+  );
+  return themeData[0].OccurancesCount / allInstanceCount;
+};
+
 const getColorForBook = (bookName, occurancesOfThemePerBook) => {
   const occurancesInCurrentBook = occurancesOfThemePerBook.filter(
     bookData => bookData.Book == bookName
@@ -41,26 +48,21 @@ const getColorForBook = (bookName, occurancesOfThemePerBook) => {
     0
   );
 
-  // Calculate % of each theme and then use it to blend the RGB by making that % of each color to r, g and b separately
-  getPercentageOfThemeInAllInstances = (themeName, allInstanceCount) => {
-    const themeData = occurancesInCurrentBook.filter(
-      data => data.Theme == themeName
-    );
-    return themeData[0].OccurancesCount / allInstanceCount;
-  };
-
   // In this specific book, what % is each theme of all themes?
   const percentageOfMP = getPercentageOfThemeInAllInstances(
     "Moniäänisyys",
-    totalInstancesOfThemes
+    totalInstancesOfThemes,
+    occurancesInCurrentBook
   );
   const percentageOfTK = getPercentageOfThemeInAllInstances(
     "Tiedon konstruointi",
-    totalInstancesOfThemes
+    totalInstancesOfThemes,
+    occurancesInCurrentBook
   );
   const percentageOfVO = getPercentageOfThemeInAllInstances(
     "Voimaannuttaminen",
-    totalInstancesOfThemes
+    totalInstancesOfThemes,
+    occurancesInCurrentBook
   );
 
   const rValue =
