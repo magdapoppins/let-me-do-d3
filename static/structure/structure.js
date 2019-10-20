@@ -36,19 +36,11 @@ const updateNodes = () => {
   themeNodes
     .enter()
     .append("text")
-    .text(function(d) {
-      return d.name;
-    })
+    .text(data => data.name)
     .merge(themeNodes)
-    .attr("x", function(d) {
-      return d.x;
-    })
-    .attr("y", function(d) {
-      return d.y;
-    })
-    .attr("dy", function(d) {
-      return 5;
-    });
+    .attr("x", data => data.x)
+    .attr("y", data => data.y)
+    .attr("dy", 5);
 
   themeNodes.exit().remove();
 };
@@ -64,18 +56,10 @@ const updateLinks = () => {
     .append("line")
     .merge(themeLinks)
     .attr("stroke", "hotpink")
-    .attr("x1", function(d) {
-      return d.source.x;
-    })
-    .attr("y1", function(d) {
-      return d.source.y;
-    })
-    .attr("x2", function(d) {
-      return d.target.x;
-    })
-    .attr("y2", function(d) {
-      return d.target.y;
-    });
+    .attr("x1", data => data.source.x)
+    .attr("y1", data => data.source.y)
+    .attr("x2", data => data.target.x)
+    .attr("y2", data => data.target.y);
 
   themeLinks.exit().remove();
 };
