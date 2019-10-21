@@ -1,3 +1,4 @@
+import { select } from "d3";
 import { bookData } from "./data";
 
 const getThemeOccurancesByBook = (bookData, uniqueBooks, uniqueThemes) =>
@@ -37,7 +38,7 @@ const occurancesOfThemePerBook = getThemeOccurancesByBook(
   uniqueThemes
 );
 
-const canvas = d3.select("svg");
+const canvas = select("svg");
 
 const bars = canvas
   .selectAll("rect")

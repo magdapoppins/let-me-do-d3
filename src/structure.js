@@ -1,3 +1,11 @@
+import {
+  select,
+  forceSimulation,
+  forceManyBody,
+  forceCenter,
+  forceLink
+} from "d3";
+
 const width = 900,
   height = 800;
 
@@ -28,8 +36,7 @@ const ticked = () => {
 };
 
 const updateNodes = () => {
-  const themeNodes = d3
-    .select(".nodes")
+  const themeNodes = select(".nodes")
     .selectAll("text")
     .data(themes);
 
@@ -46,8 +53,7 @@ const updateNodes = () => {
 };
 
 const updateLinks = () => {
-  const themeLinks = d3
-    .select(".links")
+  const themeLinks = select(".links")
     .selectAll("line")
     .data(links);
 
@@ -64,8 +70,8 @@ const updateLinks = () => {
   themeLinks.exit().remove();
 };
 
-d3.forceSimulation(themes)
-  .force("charge", d3.forceManyBody().strength(-800))
-  .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("link", d3.forceLink().links(links))
+forceSimulation(themes)
+  .force("charge", forceManyBody().strength(-800))
+  .force("center", forceCenter(width / 2, height / 2))
+  .force("link", forceLink().links(links))
   .on("tick", ticked);

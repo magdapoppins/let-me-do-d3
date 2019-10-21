@@ -1,3 +1,12 @@
+import {
+  select,
+  forceSimulation,
+  forceCollide,
+  forceManyBody,
+  forceCenter,
+  forceX,
+  forceY
+} from "d3";
 import { bookData } from "./data";
 
 const pageHeight = 600,
@@ -39,13 +48,11 @@ const themeColors = {
 };
 
 const ticked = occurancesOfThemePerBook => {
-  const themeNodes = d3
-    .select("svg")
+  const themeNodes = select("svg")
     .selectAll("circle")
     .data(occurancesOfThemePerBook);
 
-  const themesAndColors = d3
-    .select("svg")
+  const themesAndColors = select("svg")
     .selectAll("rect")
     .data(occurancesOfThemePerBook);
 
@@ -97,13 +104,10 @@ const occurancesOfThemePerBook = getThemeOccurancesByBook(
   uniqueThemes
 );
 
-d3.forceSimulation(occurancesOfThemePerBook)
-  .force("charge", d3.forceManyBody())
-  .force("center", d3.forceCenter(pageWidth / 2, pageHeight / 2))
-  .force("x", d3.forceX().x(data => xCenter[data.Book]))
-  .force("y", d3.forceY().y(() => pageWidth / 2))
-  .force(
-    "collision",
-    d3.forceCollide().radius(data => data.OccurancesCount * 2)
-  )
+forceSimulation(occurancesOfThemePerBook)
+  .force("charge", forceManyBody())
+  .force("center", forceCenter(pageWidth / 2, pageHeight / 2))
+  .force("x", forceX().x(data => xCenter[data.Book]))
+  .force("y", forceY().y(() => pageWidth / 2))
+  .force("collision", forceCollide().radius(data => data.OccurancesCount * 2))
   .on("tick", () => ticked(occurancesOfThemePerBook));

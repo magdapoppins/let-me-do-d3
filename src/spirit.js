@@ -1,3 +1,12 @@
+import {
+  select,
+  forceSimulation,
+  forceManyBody,
+  forceCenter,
+  forceCollide,
+  forceX,
+  forceY
+} from "d3";
 import { bookData } from "./data";
 
 const height = 600,
@@ -88,7 +97,7 @@ const getColorForBook = (bookName, occurancesOfThemePerBook) => {
 };
 
 const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
-  let svg = d3.select("svg");
+  let svg = select("svg");
 
   const books = svg.selectAll("circle").data(uniqueBooks);
 
@@ -118,8 +127,7 @@ const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
     .attr("y", d => d.y)
     .text(d => d.name);
 
-  let themesAndColors = d3
-    .select("svg")
+  let themesAndColors = select("svg")
     .selectAll("rect")
     .data(uniqueThemes);
 
@@ -155,12 +163,12 @@ const occurancesOfThemePerBook = getThemeOccurancesByBook(
   uniqueThemes
 );
 
-d3.forceSimulation(uniqueBooks)
-  .force("charge", d3.forceManyBody())
-  .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("collision", d3.forceCollide().radius(80))
-  .force("x", d3.forceX().x(height / 2))
-  .force("y", d3.forceY().y(width / 2))
+forceSimulation(uniqueBooks)
+  .force("charge", forceManyBody())
+  .force("center", forceCenter(width / 2, height / 2))
+  .force("collision", forceCollide().radius(80))
+  .force("x", forceX().x(height / 2))
+  .force("y", forceY().y(width / 2))
   .on("tick", () =>
     ticked(uniqueBooks, uniqueThemes, occurancesOfThemePerBook)
   );
