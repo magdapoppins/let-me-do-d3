@@ -1,3 +1,5 @@
+import { bookData } from "./data";
+
 const pageHeight = 600,
   pageWidth = 800;
 
@@ -86,24 +88,22 @@ const ticked = occurancesOfThemePerBook => {
   themeNodes.exit().remove();
 };
 
-d3.csv("/books.csv").then(bookData => {
-  const uniqueBooks = [...new Set(bookData.map(data => data["Oppikirja"]))];
-  const uniqueThemes = [...new Set(bookData.map(data => data["Teema"]))];
+const uniqueBooks = [...new Set(bookData.map(data => data["Oppikirja"]))];
+const uniqueThemes = [...new Set(bookData.map(data => data["Teema"]))];
 
-  const occurancesOfThemePerBook = getThemeOccurancesByBook(
-    bookData,
-    uniqueBooks,
-    uniqueThemes
-  );
+const occurancesOfThemePerBook = getThemeOccurancesByBook(
+  bookData,
+  uniqueBooks,
+  uniqueThemes
+);
 
-  d3.forceSimulation(occurancesOfThemePerBook)
-    .force("charge", d3.forceManyBody())
-    .force("center", d3.forceCenter(pageWidth / 2, pageHeight / 2))
-    .force("x", d3.forceX().x(data => xCenter[data.Book]))
-    .force("y", d3.forceY().y(() => pageWidth / 2))
-    .force(
-      "collision",
-      d3.forceCollide().radius(data => data.OccurancesCount * 2)
-    )
-    .on("tick", () => ticked(occurancesOfThemePerBook));
-});
+d3.forceSimulation(occurancesOfThemePerBook)
+  .force("charge", d3.forceManyBody())
+  .force("center", d3.forceCenter(pageWidth / 2, pageHeight / 2))
+  .force("x", d3.forceX().x(data => xCenter[data.Book]))
+  .force("y", d3.forceY().y(() => pageWidth / 2))
+  .force(
+    "collision",
+    d3.forceCollide().radius(data => data.OccurancesCount * 2)
+  )
+  .on("tick", () => ticked(occurancesOfThemePerBook));

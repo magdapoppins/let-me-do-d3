@@ -46,7 +46,7 @@ const updateNodes = () => {
 };
 
 const updateLinks = () => {
-  themeLinks = d3
+  const themeLinks = d3
     .select(".links")
     .selectAll("line")
     .data(links);
@@ -64,10 +64,8 @@ const updateLinks = () => {
   themeLinks.exit().remove();
 };
 
-d3.csv("/books.csv").then(bookData => {
-  d3.forceSimulation(themes)
-    .force("charge", d3.forceManyBody().strength(-800))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("link", d3.forceLink().links(links))
-    .on("tick", ticked);
-});
+d3.forceSimulation(themes)
+  .force("charge", d3.forceManyBody().strength(-800))
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("link", d3.forceLink().links(links))
+  .on("tick", ticked);
