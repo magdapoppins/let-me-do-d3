@@ -1,4 +1,6 @@
-Oppikirja,Sivunumero,Alkuperäinen ilmaus,Teema,Alateema,Vert. Teema,Eriävä teemoitus,Teemat uusiksi,,,,
+import { csvParse } from "d3";
+
+const csvData = `Oppikirja,Sivunumero,Alkuperäinen ilmaus,Teema,Alateema,Vert. Teema,Eriävä teemoitus,Teemat uusiksi,,,,
 Forum 5,17,"“Myös sinulla on oma historiasi, ja vanhemmillasi on oma historiansa. Kyselemällä ja tutkimalla saat selville sinulle tai vanhemmillesi tapahtuneita asioita.”",Tiedon konstruointi,Oman historian tutkiminen,Tiedon konstruointi,,0,,,,
 Forum 5,11,"“Niitä (historiallisia lähteitä) tutkimalla tiedemiehet yrittävät saada selville, mitä menneisyydessä on tapahtunut.”",Tiedon konstruointi,Lähteet,Tiedon konstruointi,,0,,,,
 Forum 5,9,"“Tacticuksen tiedot perustuivat siihen, mitä hän oli kuullut toisten kertovan.”",Tiedon konstruointi,Lähteet,Tiedon konstruointi,,0,,,,
@@ -198,4 +200,6 @@ Mennyt 1,87,“‘Jopa hento tyttö voittaisi Demosthenesin painissa!’”,Moni
 Mennyt 1,92,“Huhut kertovat Ateenan joutuneen jälleen sotaan Spartaa vastaan.”,Moniäänisyys,Tarinat kerronnan muotona,Moniäänisyys,,1,,,,
 Mennyt 1,95,"“Tietomme antiikin Kreikasta ovat peräisin suurilta osin Ateenasta, sillä monet Kreikan kirjailijoista olivat ateenalaisia.”",Tiedon konstruointi,Lähteet,Tiedon konstruointi,,0,,,,
 Mennyt 1,95,“Pystymme päättelemään monia asioita kreikkalaisten elämästä myös tähän päivään saakka säilyneiden rakennusten ja esinelöytöjen ansiosta.”,Tiedon konstruointi,Lähteet,Tiedon konstruointi,,0,,,,
-Mennyt 1,95,“Maalauksista tutkijat ovat tehneet tulkintoja kreikkalaisten työnteosta ja tavoista urheilla sekä uskonnon harjoittamisesta.”,Tiedon konstruointi,Lähteet,Tiedon konstruointi,,0,,,,
+Mennyt 1,95,“Maalauksista tutkijat ovat tehneet tulkintoja kreikkalaisten työnteosta ja tavoista urheilla sekä uskonnon harjoittamisesta.”,Tiedon konstruointi,Lähteet,Tiedon konstruointi,,0,,,,`;
+
+export const bookData = csvParse(csvData);

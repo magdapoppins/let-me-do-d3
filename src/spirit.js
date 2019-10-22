@@ -1,3 +1,14 @@
+import {
+  select,
+  forceSimulation,
+  forceManyBody,
+  forceCenter,
+  forceCollide,
+  forceX,
+  forceY
+} from "d3";
+import { bookData } from "./data";
+
 const height = 600,
   width = 900;
 
@@ -27,7 +38,11 @@ const themeColors = {
   "Tiedon konstruointi": `rgb(${colorTK[0]}, ${colorTK[1]}, ${colorTK[2]})`
 };
 
-const getPercentageOfThemeInAllInstances = (themeName, allInstanceCount, occurancesInCurrentBook) => {
+const getPercentageOfThemeInAllInstances = (
+  themeName,
+  allInstanceCount,
+  occurancesInCurrentBook
+) => {
   const themeData = occurancesInCurrentBook.filter(
     data => data.Theme == themeName
   );
@@ -82,7 +97,7 @@ const getColorForBook = (bookName, occurancesOfThemePerBook) => {
 };
 
 const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
-  let svg = d3.select("svg");
+  let svg = select("svg");
 
   const books = svg.selectAll("circle").data(uniqueBooks);
 
@@ -112,8 +127,7 @@ const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
     .attr("y", d => d.y)
     .text(d => d.name);
 
-  let themesAndColors = d3
-    .select("svg")
+  let themesAndColors = select("svg")
     .selectAll("rect")
     .data(uniqueThemes);
 
@@ -138,25 +152,23 @@ const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
   themesAndColors.exit().remove();
 };
 
-d3.csv("/books.csv").then(bookData => {
-  const uniqueBooks = [...new Set(bookData.map(data => data["Oppikirja"]))].map(
-    bookName => ({ name: bookName })
-  );
-  const uniqueThemes = [...new Set(bookData.map(data => data["Teema"]))];
+const uniqueBooks = [...new Set(bookData.map(data => data["Oppikirja"]))].map(
+  bookName => ({ name: bookName })
+);
+const uniqueThemes = [...new Set(bookData.map(data => data["Teema"]))];
 
-  const occurancesOfThemePerBook = getThemeOccurancesByBook(
-    bookData,
-    uniqueBooks.map(book => book.name),
-    uniqueThemes
-  );
+const occurancesOfThemePerBook = getThemeOccurancesByBook(
+  bookData,
+  uniqueBooks.map(book => book.name),
+  uniqueThemes
+);
 
-  d3.forceSimulation(uniqueBooks)
-    .force("charge", d3.forceManyBody())
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(80))
-    .force("x", d3.forceX().x(height / 2))
-    .force("y", d3.forceY().y(width / 2))
-    .on("tick", () =>
-      ticked(uniqueBooks, uniqueThemes, occurancesOfThemePerBook)
-    );
-});
+forceSimulation(uniqueBooks)
+  .force("charge", forceManyBody())
+  .force("center", forceCenter(width / 2, height / 2))
+  .force("collision", forceCollide().radius(80))
+  .force("x", forceX().x(height / 2))
+  .force("y", forceY().y(width / 2))
+  .on("tick", () =>
+    ticked(uniqueBooks, uniqueThemes, occurancesOfThemePerBook)
+  );
