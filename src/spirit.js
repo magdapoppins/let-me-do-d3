@@ -110,22 +110,24 @@ const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
     .style("stroke", "black")
     .style("stroke-width", 3)
     .attr("fill", data => getColorForBook(data.name, occurancesOfThemePerBook))
-    .transition()
-    .delay(2)
-    .attr("r", 80);
+    // .transition()
+    // .delay(2)
+    .attr("r", 80)
+    .append("title")
+    .text(data => data.name);
 
   books.exit().remove();
 
   // TODO FIX THIS
   let bookNames = svg.selectAll("text").data(uniqueBooks);
 
-  bookNames
-    .enter()
-    .append("text")
-    .merge(bookNames)
-    .attr("x", d => d.x - (5 + d.name.length * 3))
-    .attr("y", d => d.y)
-    .text(d => d.name);
+  // bookNames
+  //   .enter()
+  //   .append("text")
+  //   .merge(bookNames)
+  //   .attr("x", d => d.x - (5 + d.name.length * 3))
+  //   .attr("y", d => d.y)
+  //   .text(d => d.name);
 
   let themesAndColors = select("svg")
     .selectAll("rect")
