@@ -7,7 +7,7 @@ import {
 } from "d3";
 
 const width = 900,
-  height = 600;
+  height = 500;
 
 const themes = [
   { name: "Monikulttuuriset sisällöt n=200" },
@@ -128,7 +128,7 @@ const updateLinks = () => {
 };
 
 forceSimulation(themes)
-  .force("charge", forceManyBody().strength(-800))
+  .force("charge", forceManyBody().strength(-500))
   .force("center", forceCenter(width / 2, height / 2))
   .force("link", forceLink().links(links))
   .on("tick", ticked);
