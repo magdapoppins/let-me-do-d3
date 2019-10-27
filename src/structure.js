@@ -45,9 +45,9 @@ const links = [
 ];
 
 const ticked = () => {
+  updateThemesAndColors();
   updateLinks();
   updateNodes();
-  updateThemesAndColors();
 };
 
 const themeColors = {
@@ -84,7 +84,7 @@ const updateThemesAndColors = () => {
 };
 
 const updateNodes = () => {
-  const themeNodes = select(".nodes")
+  const themeNodes = select("svg")
     .selectAll("circle")
     .data(themes);
 
@@ -110,7 +110,7 @@ const updateNodes = () => {
 };
 
 const updateLinks = () => {
-  const themeLinks = select(".links")
+  const themeLinks = select("svg")
     .selectAll("line")
     .data(links);
 

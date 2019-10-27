@@ -9,7 +9,7 @@ import {
 } from "d3";
 import { bookData } from "./data";
 
-const height = 600,
+const height = 500,
   width = 900;
 
 const themeOccurancesInSample = (sample, column, value) =>
