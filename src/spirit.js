@@ -110,24 +110,11 @@ const ticked = (uniqueBooks, uniqueThemes, occurancesOfThemePerBook) => {
     .style("stroke", "black")
     .style("stroke-width", 3)
     .attr("fill", data => getColorForBook(data.name, occurancesOfThemePerBook))
-    // .transition()
-    // .delay(2)
-    .attr("r", 80)
+    .attr("r", 70)
     .append("title")
     .text(data => data.name);
 
   books.exit().remove();
-
-  // TODO FIX THIS
-  let bookNames = svg.selectAll("text").data(uniqueBooks);
-
-  // bookNames
-  //   .enter()
-  //   .append("text")
-  //   .merge(bookNames)
-  //   .attr("x", d => d.x - (5 + d.name.length * 3))
-  //   .attr("y", d => d.y)
-  //   .text(d => d.name);
 
   let themesAndColors = select("svg")
     .selectAll("rect")
@@ -166,11 +153,11 @@ const occurancesOfThemePerBook = getThemeOccurancesByBook(
 );
 
 forceSimulation(uniqueBooks)
-  .force("charge", forceManyBody())
+  .force("charge", forceManyBody().strength(-600))
   .force("center", forceCenter(width / 2, height / 2))
-  .force("collision", forceCollide().radius(80))
-  .force("x", forceX().x(height / 2))
-  .force("y", forceY().y(width / 2))
+  .force("collision", forceCollide().radius(84))
+  .force("x", forceX().x(width / 2))
+  .force("y", forceY().y(height / 2))
   .on("tick", () =>
     ticked(uniqueBooks, uniqueThemes, occurancesOfThemePerBook)
   );
